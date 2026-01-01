@@ -55,7 +55,3 @@ The 6 LEDs represent the temperature in Celsius. Read them from left to right (L
 | 0 | 1 | 1 | 0 | 1 | 0 |
 
 *Example above: *
-
----
-
-### Would you like me to help you create a **circuit diagram description** or a **Fritzing-style** layout to include in the "Hardware" section?
