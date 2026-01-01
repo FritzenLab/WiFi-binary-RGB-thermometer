@@ -1,8 +1,3 @@
-This is a great idea. A clean README makes your project look professional and helps you remember how to wire it up months from now.
-
-Since you are in **Jaraguá**, I've included a section for both the hardware setup and the binary reading logic.
-
----
 
 # 🌡️ ESP32 Binary Weather Station
 
