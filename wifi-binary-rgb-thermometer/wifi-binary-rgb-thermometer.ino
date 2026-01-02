@@ -1,3 +1,4 @@
+
  // https://openweathermap.org/ to get your API KEY
  // WS2812b neopixels: https://fritzenlab.net/2024/07/14/ws2812b-addressable-rgb-led-with-esp32-c6/
  // Generate true random numbers with ESP32: https://fritzenlab.net/2025/12/06/generate-random-numbers-with-esp32/
@@ -120,18 +121,24 @@ void readTemperature(){
     firstPass= false;
   }
 }
-void convertToBinary(){
-  for (int i = 0; i < 6; i++) {
-    bitsToTurnON[i] = bitRead(int(round(temp)), i); //This is where the magic happens, I get the "temp" value (temperature),
-    // round it, convert it to integer and extract every bit of its binary equivalent. The bits are then used to enter
-    // each charlieplexed LED bit value
-    Serial.print(bitsToTurnON[i]); // print the bits corresponding to the temperature integer
-    
+void convertToBinary() {
+  int value = int(round(temp));
+
+  for (int led = 0; led < qtdeLeds; led++) {
+    int bitIndex = (qtdeLeds - 1) - led;  // MSB on LED 0
+    bitsToTurnON[led] = bitRead(value, bitIndex);
   }
+
+  // Debug print (MSB → LSB)
+  for (int i = 0; i < qtdeLeds; i++) {
+    Serial.print(bitsToTurnON[i]);
+  }
+  Serial.println();
 }
+
 void turnLEDsON(){
   pixels.clear(); // start by clearing all pixels
-  for(int i = 5; i >= 0; i--){ // iterate within the 6 WS2812b (5 downto 0)
+  for(int i = 0; i < 6; i++){ // iterate within the 6 WS2812b (5 downto 0)
     if(bitsToTurnON[i] == 1){ // if current pixel was marked as 1 (ON)
       pixels.setPixelColor(i, pixels.Color(red, green, blue)); // apply color
     }
@@ -164,3 +171,4 @@ uint32_t randomRange(uint32_t minVal, uint32_t maxVal) {
   if (maxVal <= minVal) return minVal;  
   return minVal + randomBounded(maxVal - minVal);
 }
+
