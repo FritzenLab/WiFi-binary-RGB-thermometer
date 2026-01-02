@@ -1,4 +1,3 @@
-
  // https://openweathermap.org/ to get your API KEY
  // WS2812b neopixels: https://fritzenlab.net/2024/07/14/ws2812b-addressable-rgb-led-with-esp32-c6/
  // Generate true random numbers with ESP32: https://fritzenlab.net/2025/12/06/generate-random-numbers-with-esp32/
