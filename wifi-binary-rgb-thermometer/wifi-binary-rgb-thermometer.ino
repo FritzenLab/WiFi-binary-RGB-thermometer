@@ -148,6 +148,16 @@ void getRandomColor(){
   red = randomRange(10, 253);
   green = randomRange(10, 253);
   blue = randomRange(10, 253);
+
+  int zeroSome= randomRange(1,4); // Zeroes one of the colors, every time
+  if(zeroSome == 1){
+    red= 0;
+  }else if(zeroSome == 2){
+    green= 0;
+  }else if(zeroSome == 3){
+    blue= 0;
+  }
+
 }
 
 // Returns a random number in the range [0, bound)
