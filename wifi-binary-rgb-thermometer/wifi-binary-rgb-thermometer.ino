@@ -14,6 +14,31 @@ Adafruit_NeoPixel pixels(qtdeLeds, D_in);
 
 #include <esp_system.h> // Required for esp_random()
 
+// 20 predefined RGB colors
+const uint8_t colorPalette[20][3] = {
+  {255,   0,   0},   // Red
+  {0,   255,   0},   // Green
+  {0,     0, 255},   // Blue
+  {255, 255,   0},   // Yellow
+  {0,   255, 255},   // Cyan
+  {255,   0, 255},   // Magenta
+  {255, 165,   0},   // Orange
+  {128,   0, 128},   // Purple
+  {255, 105, 180},   // Pink
+  {50,  205,  50},   // Lime
+  {0,   128, 128},   // Teal
+  {0,     0, 128},   // Navy
+  {128,   0,   0},   // Maroon
+  {128, 128,   0},   // Olive
+  {139,  69,  19},   // Brown
+  {255, 215,   0},   // Gold
+  {135, 206, 235},   // Sky Blue
+  {138,  43, 226},   // Violet
+  {255, 127,  80},   // Coral
+  {128, 128, 128}    // Gray
+};
+
+
 float temp = 0;
 unsigned long updateTimer = 0;
 bool gotTemperature = false;
@@ -144,20 +169,12 @@ void turnLEDsON(){
   }  
   pixels.show(); // after defining color for all pixels, turn them ON
 }
-void getRandomColor(){
-  red = randomRange(10, 253);
-  green = randomRange(10, 253);
-  blue = randomRange(10, 253);
+void getRandomColor() {
+  int idx = randomRange(0, 20);  // pick one of the 20 colors
 
-  int zeroSome= randomRange(1,4); // Zeroes one of the colors, every time
-  if(zeroSome == 1){
-    red= 0;
-  }else if(zeroSome == 2){
-    green= 0;
-  }else if(zeroSome == 3){
-    blue= 0;
-  }
-
+  red   = colorPalette[idx][0];
+  green = colorPalette[idx][1];
+  blue  = colorPalette[idx][2];
 }
 
 // Returns a random number in the range [0, bound)
