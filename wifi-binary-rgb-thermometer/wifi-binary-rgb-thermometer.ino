@@ -131,8 +131,9 @@ void readTemperature(){
   if (((millis() - updateTimer) > 900000) || firstPass == true) {
     updateTimer = millis();
     
-    //Serial.println("\n--- Attempting Update ---");
-    
+    // First, try to fix WiFi if it's broken
+    ensureWiFi();
+   
     if (!getTemperatureOnline()) {
       Serial.println("Online failed. Switching to LM35...");
       getTemperatureOffline();
@@ -197,4 +198,31 @@ uint32_t randomRange(uint32_t minVal, uint32_t maxVal) {
   if (maxVal <= minVal) return minVal;  
   return minVal + randomBounded(maxVal - minVal);
 }
+bool ensureWiFi() {
+  int attempts = 0;
+  const int maxAttempts = 5;
 
+  if (WiFi.status() == WL_CONNECTED) {
+    return true;
+  }
+
+  Serial.println("\nWiFi disconnected. Attempting to reconnect...");
+  WiFi.disconnect(); // Clear existing failed states
+  WiFi.begin(ssid, password);
+
+  while (WiFi.status() != WL_CONNECTED && attempts < maxAttempts) {
+    delay(2000); // Wait 2 seconds per attempt
+    attempts++;
+    Serial.print("Retry ");
+    Serial.print(attempts);
+    Serial.println("/5...");
+  }
+
+  if (WiFi.status() == WL_CONNECTED) {
+    Serial.println("Reconnected successfully!");
+    return true;
+  } else {
+    Serial.println("WiFi reconnection failed.");
+    return false;
+  }
+}
