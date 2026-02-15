@@ -21,10 +21,10 @@ const uint8_t colorPalette[20][3] = {
   {0,     0, 255},   // Blue
   {255, 255,   0},   // Yellow
   {0,   255, 255},   // Cyan
-  //{255,   0, 255},   // Magenta
+  {255,   0, 255},   // Magenta
   {255, 165,   0},   // Orange
-  //{128,   0, 128},   // Purple
-  //{255, 105, 180},   // Pink
+  {128,   0, 128},   // Purple
+  {255, 105, 180},   // Pink
   {50,  205,  50},   // Lime
   {0,   128, 128},   // Teal
   {0,     0, 128},   // Navy
@@ -33,7 +33,7 @@ const uint8_t colorPalette[20][3] = {
   {139,  69,  19},   // Brown
   {255, 215,   0},   // Gold
   {135, 206, 235},   // Sky Blue
-  //{138,  43, 226},   // Violet
+  {138,  43, 226},   // Violet
   {255, 127,  80},   // Coral
   {128, 128, 128}    // Gray
 };
@@ -171,7 +171,7 @@ void turnLEDsON(){
   pixels.show(); // after defining color for all pixels, turn them ON
 }
 void getRandomColor() {
-  int idx = randomRange(0, 16);  // pick one of the 20 colors
+  int idx = randomRange(0, 20);  // pick one of the 20 colors
 
   red   = colorPalette[idx][0];
   green = colorPalette[idx][1];
