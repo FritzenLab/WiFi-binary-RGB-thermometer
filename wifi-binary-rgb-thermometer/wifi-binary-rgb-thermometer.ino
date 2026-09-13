@@ -44,10 +44,11 @@ unsigned long updateTimer = 0;
 bool gotTemperature = false;
 int intTemp= 0;
 int bitsToTurnON[6]= {0}; // Here lives the information of which LEDs WS2812b will turn ON at any given time
-bool newValueAvailable= false; // flag to the pixels that a new temperature is available
+int bitsConverted[6]= {0};
 uint32_t red, green, blue= 0;
 bool firstPass= true;
-
+int displayTemp = 0;
+unsigned long updateColor = 0;
 const char* ssid     = "";
 const char* password = "";
 String apiKey        = "";
@@ -71,16 +72,14 @@ void setup() {
   updateTimer= millis();
 }
 
-void loop() {
-  
-  readTemperature(); // read temperature, either from the internet or from an LM35
-  
-  if(newValueAvailable == true){ // if there is a new temperature reading available,
-    getRandomColor(); // pick a random color to apply to the WS2812b's
-    turnLEDsON(); // turn ON LEDs in color and sequence pre-defined
-    newValueAvailable= false; // after updating the LEDs, zero the flag to wait for new readings
-  }
-  
+void loop() {  
+  displayTemp = readTemperature();
+  // Change color every 5 minutes
+  if (millis() - updateColor >= 300000) {
+    updateColor = millis();
+    getRandomColor();
+    turnLEDsON(displayTemp);
+  }  
 }
 
 bool getTemperatureOnline() {
@@ -118,57 +117,50 @@ void getTemperatureOffline() {
   for (int i = 0; i < 10; i++) {
     sumSensor += analogRead(lm35_PIN);
     delay(50); 
-  }
-  
+  }  
   float averageADC = sumSensor / 10.0;
   // ESP32 LM35 Calculation: (ADC_Value * Reference_Voltage / Max_ADC_Steps) / 10mv per degree
   float milliVolts = (averageADC * 3300.0) / 4095.0;
-  temp = round(milliVolts / 10.0);
-  
-  Serial.print("Offline (LM35) Temp: ");
+  temp = round(milliVolts / 10.0);  
 }
-void readTemperature(){
-  if (((millis() - updateTimer) > 900000) || firstPass == true) {
+int readTemperature() {
+  if (millis() - updateTimer >= 900000 || firstPass == true) {
     updateTimer = millis();
-    
-    // First, try to fix WiFi if it's broken
     ensureWiFi();
-   
     if (!getTemperatureOnline()) {
       Serial.println("Online failed. Switching to LM35...");
       getTemperatureOffline();
     }
-    
-    intTemp= int(temp);
-    Serial.println(temp);
-    convertToBinary(); // convert the integer of temperature in degrees Celsius to binary   
-    newValueAvailable= true; // flag to the pixels that a new value is available 
-    firstPass= false;
+    intTemp = int(temp);
+    Serial.print("Temperature: ");
+    Serial.println(intTemp);
+    getRandomColor();
+    turnLEDsON(intTemp);
+    firstPass = false;
   }
-}
-void convertToBinary() {
-  int value = int(round(temp));
 
+  return intTemp;
+}
+void convertToBinary(int value, int bitsConverted[]) {
   for (int led = 0; led < qtdeLeds; led++) {
     int bitIndex = (qtdeLeds - 1) - led;  // MSB on LED 0
-    bitsToTurnON[led] = bitRead(value, bitIndex);
+    bitsConverted[led] = bitRead(value, bitIndex);
   }
-
   // Debug print (MSB → LSB)
   for (int i = 0; i < qtdeLeds; i++) {
-    Serial.print(bitsToTurnON[i]);
-  }
-  Serial.println();
+    Serial.print(bitsConverted[i]);
+  }  
 }
 
-void turnLEDsON(){
-  pixels.clear(); // start by clearing all pixels
-  for(int i = 0; i < 6; i++){ // iterate within the 6 WS2812b (5 downto 0)
-    if(bitsToTurnON[i] == 1){ // if current pixel was marked as 1 (ON)
-      pixels.setPixelColor(i, pixels.Color(red, green, blue)); // apply color
+void turnLEDsON(int tempToConvert) {
+  convertToBinary(tempToConvert, bitsToTurnON);
+  pixels.clear();
+  for (int i = 0; i < 6; i++) {
+    if (bitsToTurnON[i] == 1) {
+      pixels.setPixelColor(i, pixels.Color(red, green, blue));
     }
-  }  
-  pixels.show(); // after defining color for all pixels, turn them ON
+  }
+  pixels.show();
 }
 void getRandomColor() {
   int idx = randomRange(0, 20);  // pick one of the 20 colors
